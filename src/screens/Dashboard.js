@@ -1,15 +1,15 @@
-import { View, Text, StyleSheet, Button, StatusBar, Platform } from "react-native";
+import { View, Text, StyleSheet, Button, StatusBar, Platform , Image} from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useContext } from "react";
+import { use, useContext } from "react";
 import { TouchableOpacity } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigation } from "@react-navigation/native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Logo from "../components/Logo";
 const Tab = createBottomTabNavigator();
-
 
 const ScreenWrapper = ({ children }) => (
   <SafeAreaView
@@ -23,24 +23,31 @@ const ScreenWrapper = ({ children }) => (
 );
 
 const DashboardScreen = () => {
-  const navigation = useNavigation(); // ✅ use parent stack navigation
-
+  const navigation = useNavigation(); // use parent stack navigation
+  const { user } = useContext(AuthContext);
   return (
     <ScreenWrapper>
-      <Text style={styles.title}>🚍 Driver Dashboard</Text>
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Drowsiness Status</Text>
-        <Text style={styles.cardText}>Active Monitoring...</Text>
-      </View>
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Last Alert</Text>
-        <Text style={styles.cardText}>No recent alerts ✅</Text>
+      <Text style={styles.title}>Dashboard</Text>
+      <View style={styles.header}>
+        <Text style={styles.welcome}>Welcome Back</Text>
+        <Text style={styles.subtext}>Here’s your dashboard overview</Text>
       </View>
 
-      <Button
-        title="Open Camera"
-        onPress={() => navigation.navigate("Camera")} // ✅ this now works
-      />
+      {/* User Info Card */}
+      <View style={styles.card}>
+        <Image source={require("../assets/user.png")} style={styles.avatar} />
+        <View>
+          <Text style={styles.cardText}>{user?.name}</Text>
+          <Text style={styles.cardText}>{user?.role}</Text>
+        </View>
+      </View>
+
+      <TouchableOpacity
+        style={styles.cameraBtn}
+        onPress={() => navigation.navigate("Camera")} 
+      >
+        <Text style={styles.cameraBtnText}>Start Detecting Drowsiness</Text>
+      </TouchableOpacity>
     </ScreenWrapper>
   );
 };
@@ -48,7 +55,7 @@ const DashboardScreen = () => {
 
 const LogsScreen = () => (
   <ScreenWrapper>
-    <Text style={styles.title}>📑 Driver Logs</Text>
+    <Text style={styles.title}>Driver Logs</Text>
     <View style={styles.card}>
       <Text style={styles.cardText}>No logs available yet.</Text>
     </View>
@@ -57,28 +64,27 @@ const LogsScreen = () => (
 
 const AlertsScreen = () => (
   <ScreenWrapper>
-    <Text style={styles.title}>⚠️ Alerts</Text>
+    <Text style={styles.title}>Alerts</Text>
     <View style={styles.card}>
-      <Text style={styles.cardText}>No active alerts 🚨</Text>
+      <Text style={styles.cardText}>No active alerts</Text>
     </View>
   </ScreenWrapper>
 );
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const { logout } = useContext(AuthContext); // ✅ get logout from context
-
+  const { logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const handleLogout = () => {
-    logout(); // ✅ this will trigger RootNavigator to show Login automatically
+    logout(); // this will trigger RootNavigator to show Login automatically
   };
 
   return (
     <ScreenWrapper>
-      <Text style={styles.title}>👤 Profile</Text>
-      <View style={styles.card}>
-        <Text style={styles.cardText}>Name: John Doe</Text>
-        <Text style={styles.cardText}>Role: Bus Driver</Text>
-      </View>
+      <Image source={require("../assets/user.png")} style={styles.image}/>
+      <Text style={styles.name_text}>{user?.name}</Text>
+      <Text style={styles.center_text}>{user?.email}</Text>
+      <Text style={styles.center_text}>{user?.role}</Text>
 
       <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
         <Text style={styles.logoutText}>Logout</Text>
@@ -103,9 +109,13 @@ export default function Dashboard({ navigation }) {
           },
           tabBarActiveTintColor: "#007AFF",
           tabBarInactiveTintColor: "gray",
+          tabBarStyle:{
+            backgroundColor:"#000000",
+            borderTopColor: "#222222",
+          }
         })}
       >
-        <Tab.Screen name="Dash" component={DashboardScreen} />
+        <Tab.Screen name="Dashboard" component={DashboardScreen} />
         <Tab.Screen name="Logs" component={LogsScreen} />
         <Tab.Screen name="Alerts" component={AlertsScreen} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
@@ -118,6 +128,39 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000000",
   },
+  header: {
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  welcome: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#ffffff",
+    marginLeft: 20,
+  },
+  subtext: {
+    fontSize: 14,
+    color: "#abc5d3ff",
+    marginTop: 4,
+    marginLeft: 20,
+  },
+  name_text:{
+    color: "#ffffff",
+    fontSize: 22,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 16,
+  },
+  center_text:{
+    color: "#ffffff",
+    fontSize: 16,
+    textAlign: "center",
+  },
   title: {
     fontSize: 22,
     fontWeight: "bold",
@@ -126,17 +169,26 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: "#ffffff",
   },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: "center",
+    marginBottom: 20,
+  },
   card: {
-    backgroundColor: "#81e4f9",
+    backgroundColor: "#3d5c64ff",
     padding: 20,
     borderRadius: 15,
     marginBottom: 15,
-    shadowColor: "#000000ff",
+    shadowColor: "#ffffffff",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 5,
     elevation: 3,
     marginHorizontal: 10,
+    flexDirection: "row",
+    alignItems: "center"
   },
   cardTitle: {
     fontSize: 18,
@@ -145,7 +197,21 @@ const styles = StyleSheet.create({
   },
   cardText: {
     fontSize: 16,
-    color: "#000000"
+    color: "#ffffffff"
+  },
+  cameraBtn: {
+    marginTop: 20,
+    backgroundColor: "#81e4f9",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    width: "60%",
+    alignSelf: "center"
+  },
+  cameraBtnText: {
+    fontWeight: "bold",
+    color: "#000000",
+    textAlign: "center"
   },
   logoutText: {
     color: "#fff",
@@ -155,11 +221,16 @@ const styles = StyleSheet.create({
   logoutBtn: {
     marginTop: 30,
     backgroundColor: "#FF5252",
+    position: "absolute",
+    bottom: 40,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
     width: "60%",
     alignItems: "center",
     alignSelf: "center",
+  },
+  Tab: {
+    backgroundColor: "#1b2b2dff",
   },
 });

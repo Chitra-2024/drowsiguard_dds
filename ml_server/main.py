@@ -57,4 +57,4 @@ async def predict(data: ImageBase64):
             "height": (y2 - y1) / h
         })
     
-    return {"detections": detections}
+    return {"detections": detections, "message": "Hello from model"}

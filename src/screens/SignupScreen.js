@@ -7,11 +7,12 @@ export default function SignupScreen({ navigation }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
   const [error, setError] = useState("");
 
   const handleSignup = async () => {
     try {
-      const data = await signup(name, email, password);
+      const data = await signup(name, email, password, role);
       console.log("Signup success:", data);
       navigation.navigate("Login");
     } catch (err) {
@@ -33,6 +34,7 @@ export default function SignupScreen({ navigation }) {
         onChangeText={setPassword}
         secureTextEntry
       />
+      <TextInput style={styles.input} placeholder="Role (Driver/Passenger)" placeholderTextColor="#81e4f9" value={role} onChangeText={setRole} />
       <Button title="Signup" color="#0b7992" onPress={handleSignup} />
       {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
       <Text style={styles.link} onPress={() => navigation.navigate("Login")}>
