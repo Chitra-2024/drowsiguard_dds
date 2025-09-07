@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button, StyleSheet, Text, View, Dimensions } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { getMlServerUrl } from '../config/network';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -9,6 +10,8 @@ export default function CameraScreen() {
   const [facing, setFacing] = useState('back'); // 'back' or 'front'
   const [detections, setDetections] = useState([]);
   const cameraRef = useRef(null);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const alertTimerRef = useRef(null);
 
   // Capture and send frame to backend every 500ms
   // Inside your useEffect
@@ -20,7 +23,7 @@ useEffect(() => {
 
       try {
         const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.7 }); // reduced size
-        const response = await fetch('http://192.168.1.8:8000/predict', {
+        const response = await fetch(`${getMlServerUrl()}/predict`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ image: photo.base64 }),
@@ -29,9 +32,11 @@ useEffect(() => {
         const dets = result.detections || [];
         setDetections(dets);
 
-        // Trigger alert if drowsy detected
-        if (dets.some(d => d.label === "0")) {  // 0 = drowsy
-          alert("Driver is drowsy!");
+        // Trigger in-app banner if drowsy detected (label "0")
+        if (dets.some(d => d.label === "0")) {
+          setAlertVisible(true);
+          if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
+          alertTimerRef.current = setTimeout(() => setAlertVisible(false), 2000);
         }
       } catch (err) {
         console.log('Error detecting:', err);
@@ -58,6 +63,12 @@ useEffect(() => {
   return (
     <View style={styles.container}>
       <CameraView ref={cameraRef} style={styles.camera} facing={facing} />
+
+      {alertVisible && (
+        <View style={styles.alertBanner}>
+          <Text style={styles.alertText}>Drowsiness detected!</Text>
+        </View>
+      )}
 
       {/* Overlay detections */}
       {detections.map((item, index) => (
@@ -96,6 +107,25 @@ const styles = StyleSheet.create({
   camera: { flex: 1 },
   controls: { position: 'absolute', bottom: 40, left: 20, right: 20 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  alertBanner: {
+    position: 'absolute',
+    top: 100,
+    left: 20,
+    right: 20,
+    backgroundColor: '#ef4444',
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#b91c1c',
+  },
+  alertText: {
+    color: '#000000',
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
   label: {
     color: 'red',
     fontWeight: 'bold',

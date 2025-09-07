@@ -1,6 +1,7 @@
 import axios from "axios";
+import { getApiBaseUrl } from "../config/network";
 
-const API_URL = "http://192.168.1.8:5000/api";
+const API_URL = getApiBaseUrl();
 
 export const signup = async (name, email, password, role) => {
   const res = await axios.post(`${API_URL}/auth/signup`, { name, email, password, role });
