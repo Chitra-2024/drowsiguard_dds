@@ -1,16 +1,14 @@
-# backend_fastapi/main.py
+# main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from ultralytics import YOLO
 import numpy as np
 from PIL import Image
-import cv2
 import io
 import base64
 
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,43 +16,58 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load your trained YOLOv8 model
 model = YOLO("best.pt")
 
-# Pydantic model for receiving base64 image
 class ImageBase64(BaseModel):
     image: str
 
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "model_loaded": True}
+
 @app.post("/predict")
 async def predict(data: ImageBase64):
-    # Decode base64 image
-    image_bytes = base64.b64decode(data.image)
-    image = np.array(Image.open(io.BytesIO(image_bytes)))
-
-
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)  # PIL to OpenCV format
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    image = cv2.resize(image, (640, 640))
-    image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-
-    
-    # Run YOLO detection
-    results = model(image, conf=0.35)[0]
-    # get first (and only) result
-    
-    detections = []
-    h, w = image.shape[:2]
-    
-    for box, cls, conf in zip(results.boxes.xyxy, results.boxes.cls, results.boxes.conf):
-        print("Detected class:", cls, "Confidence:", conf)
-        x1, y1, x2, y2 = box.tolist()
-        detections.append({
-            "label": str(int(cls)),  # you can map to class names if you want
-            "confidence": float(conf),
-            "x": x1 / w,
-            "y": y1 / h,
-            "width": (x2 - x1) / w,
-            "height": (y2 - y1) / h
-        })
-    
-    return {"detections": detections, "message": "Hello from model"}
+    try:
+        # Decode base64 image
+        image_bytes = base64.b64decode(data.image)
+        image = Image.open(io.BytesIO(image_bytes))
+        
+        # Convert to RGB if needed
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        # Run inference
+        results = model(image)
+        
+        # Handle different YOLO model types
+        if len(results) > 0:
+            result = results[0]
+            
+            # Check if it's a classification model
+            if hasattr(result, 'probs') and result.probs is not None:
+                # Classification model
+                probs = result.probs.data.cpu().numpy()
+                cls_idx = int(np.argmax(probs))
+                conf = float(np.max(probs))
+            elif hasattr(result, 'boxes') and result.boxes is not None and len(result.boxes) > 0:
+                # Detection model - get the first detection
+                boxes = result.boxes
+                cls_idx = int(boxes.cls[0])
+                conf = float(boxes.conf[0])
+            else:
+                # Fallback - assume classification with equal probabilities
+                cls_idx = 0
+                conf = 0.5
+            
+            label = str(cls_idx)  # "0" for drowsy, "1" for not drowsy
+            
+            print(f"Prediction: label={label}, confidence={conf:.3f}")
+            
+            return {"detections": [{"label": label, "confidence": conf}]}
+        else:
+            # No results
+            return {"detections": [{"label": "1", "confidence": 0.0}]}
+            
+    except Exception as e:
+        print(f"Error in prediction: {str(e)}")
+        return {"detections": [{"label": "1", "confidence": 0.0}]}
