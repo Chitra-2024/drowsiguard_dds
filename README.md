@@ -124,10 +124,10 @@ Follow these steps to set up the project locally.
 
 * Chitra Bhaskar - App Developer
   * GitHub: [https://github.com/Chitra-2024](https://github.com/Chitra-2024)
-  * LinkedIn: [https://www.linkedin.com/in/chitra-bhaskar-b50184297](www.linkedin.com/in/chitra-bhaskar-b50184297)
+  * LinkedIn: [www.linkedin.com/in/chitra-bhaskar-b50184297](https://www.linkedin.com/in/chitra-bhaskar-b50184297)
 * Aditi Rao - ML Developer
   * Github: [https://github.com/aditirao29](https://github.com/aditirao29)
-  * LinkedIn: [https://www.linkedin.com/in/aditi-rao-342248294](www.linkedin.com/in/aditi-rao-342248294)
+  * LinkedIn: [www.linkedin.com/in/aditi-rao-342248294](https://www.linkedin.com/in/aditi-rao-342248294)
 
 ---
 
