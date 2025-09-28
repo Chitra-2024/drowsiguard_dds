@@ -1,6 +1,5 @@
 # Drowsiguard DDS: Drowsiness Detection System
 
-![Drowsiness Detection](https://i.imgur.com/g3t4b2Y.gif)
 
 ## Table of Contents
 
