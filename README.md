@@ -3,18 +3,17 @@
 
 ## Table of Contents
 
-* About the Project
-* Key Features
-* Technologies Used
-* Getting Started
-
-  * Prerequisites
-  * Installation
-  * Running the Backend
-  * Running the Frontend
-* Usage
-* Team
-* Acknowledgments
+- [About the Project](#about-the-project)
+- [Key Features](#key-features)
+- [Technologies Used](#technologies-used)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Running the Backend](#running-the-backend)
+  - [Running the Frontend](#running-the-frontend)
+- [Usage](#usage)
+- [Team](#team)
+- [Acknowledgments](#acknowledgments)
 
 ---
 
@@ -124,9 +123,11 @@ Follow these steps to set up the project locally.
 ## Team
 
 * Chitra Bhaskar - App Developer
-  GitHub: [https://github.com/Chitra-2024](https://github.com/Chitra-2024)
-  LinkedIn: [https://www.linkedin.com/in/chitrabhaskar](www.linkedin.com/in/chitra-bhaskar-b50184297)
+  * GitHub: [https://github.com/Chitra-2024](https://github.com/Chitra-2024)
+  * LinkedIn: [www.linkedin.com/in/chitra-bhaskar-b50184297](www.linkedin.com/in/chitra-bhaskar-b50184297)
 * Aditi Rao - ML Developer
+  * Github: [https://github.com/aditirao29](https://github.com/aditirao29)
+  * LinkedIn: [www.linkedin.com/in/aditi-rao-342248294](www.linkedin.com/in/aditi-rao-342248294)
 
 ---
 
